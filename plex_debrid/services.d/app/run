@@ -1,0 +1,4 @@
+#!/bin/bash -ex
+cd /app
+mkdir -p /config/addons_config/plex_debrid
+exec python3 ./main.py --config-dir /config/addons_config/plex_debrid -service
