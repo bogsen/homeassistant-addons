@@ -4,3 +4,4 @@ build_from:
   i386: ghcr.io/home-assistant/i386-base:latest
 codenotary:
   signer: codenotary@bog.dev
+  base_image: notary@home-assistant.io

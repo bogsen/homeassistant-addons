@@ -1,6 +1,6 @@
 name: plex_debrid
 description: "Plex torrent streaming through Debrid Services"
-version: "2.70"
+version: "2.70-1"
 slug: plex_debrid
 init: false
 arch:
