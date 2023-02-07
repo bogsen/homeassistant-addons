@@ -11,4 +11,4 @@ map:
   - config:rw
 ingress: true
 image: "ghcr.io/bogsen/homeassistant-addon-plex_debrid-{arch}"
-#
+codenotary: codenotary@bog.dev
