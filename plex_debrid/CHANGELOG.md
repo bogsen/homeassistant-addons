@@ -1,5 +1,9 @@
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 2.71-1
+
+- Removed Codenotary CAS signing due to build issues
+
 ## 2.71
 
 - plex_debrid updated to 2.71

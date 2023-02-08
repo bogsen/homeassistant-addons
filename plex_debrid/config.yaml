@@ -1,6 +1,6 @@
 name: plex_debrid
 description: "Plex torrent streaming through Debrid Services"
-version: "2.71"
+version: "2.71-1"
 slug: plex_debrid
 init: false
 arch:
@@ -11,4 +11,3 @@ map:
   - config:rw
 ingress: true
 image: "ghcr.io/bogsen/homeassistant-addon-plex_debrid-{arch}"
-codenotary: codenotary@bog.dev
