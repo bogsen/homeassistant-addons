@@ -1,0 +1,26 @@
+name: iSponsorBlockTV Legacy
+version: "2023.5.31-1"
+slug: isponsorblocktv-legacy
+description: "Skip YouTube sponsor segments using direct Apple TV control"
+url: "https://github.com/bogsen/homeassistant-addons/tree/main/isponsorblocktv-legacy"
+arch:
+  - aarch64
+  - amd64
+host_network: true
+options:
+  apikey: ""
+  atvs: []
+  skip_categories:
+    - sponsor
+  channel_whitelist: []
+schema:
+  apikey: password
+  atvs:
+    - identifier: str
+      airplay_credentials: password
+  skip_categories:
+    - str
+  channel_whitelist:
+    - id: str
+      name: str?
+image: "ghcr.io/bogsen/homeassistant-addon-isponsorblocktv-legacy-{arch}"

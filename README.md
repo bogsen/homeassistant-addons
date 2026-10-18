@@ -14,6 +14,14 @@ This repository contains the following add-ons
 Sideload and refresh Apple TV apps through Home Assistant ingress.
 See the [add-on README](./atvloadly/README.md).
 
+### [iSponsorBlockTV Legacy](./isponsorblocktv-legacy)
+
+![Supports aarch64 Architecture][aarch64-shield]
+![Supports amd64 Architecture][amd64-shield]
+
+Skip YouTube sponsor segments using the legacy direct Apple TV control approach.
+See the [add-on README](./isponsorblocktv-legacy/README.md).
+
 <!--
 
 Notes to developers after forking or using the github template feature:
