@@ -1,4 +1,4 @@
-# Both Supervisor and the repository builder supply --platform for this index.
+# The multi-platform index selects the upstream image for the build architecture.
 # Do not use BUILD_FROM: newer Supervisors override it with the HA base image.
 FROM ghcr.io/bitxeno/atvloadly:v0.7.1@sha256:1ade1ac88b9dbd2e687111437d196827729b1b525f9ec6d59e6ec9938aa04cbc
 

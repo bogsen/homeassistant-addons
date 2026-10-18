@@ -1,113 +1,90 @@
 name: Builder
 
-env:
-  BUILD_ARGS: "--test"
-  MONITORED_FILES: "build.yaml config.yaml Dockerfile rootfs"
-
 on:
   push:
     branches:
       - main
+    paths:
+      - "**/Dockerfile"
+      - "**/.dockerignore"
+      - "**/config.yaml"
+      - "**/rootfs/**"
+      - ".github/workflows/builder.yaml"
   pull_request:
     branches:
       - main
+    paths:
+      - "**/Dockerfile"
+      - "**/.dockerignore"
+      - "**/config.yaml"
+      - "**/rootfs/**"
+      - ".github/workflows/builder.yaml"
+
+permissions:
+  contents: read
 
 jobs:
   init:
+    name: Find add-ons
     runs-on: ubuntu-latest
-    name: Initialize builds
     outputs:
-      changed_addons: ${{ steps.changed_addons.outputs.addons }}
-      changed: ${{ steps.changed_addons.outputs.changed }}
+      addons: ${{ steps.addons.outputs.addons_list }}
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3.5.0
-
-      - name: Get changed files
-        id: changed_files
-        uses: jitterbit/get-changed-files@v1
-
-      - name: Find add-on directories
-        id: addons
+      - uses: actions/checkout@v6
+      - id: addons
         uses: home-assistant/actions/helpers/find-addons@master
 
-      - name: Get changed add-ons
-        id: changed_addons
-        run: |
-          declare -a changed_addons
-          for addon in ${{ steps.addons.outputs.addons }}; do
-            if [[ "${{ steps.changed_files.outputs.all }}" =~ $addon ]]; then
-              for file in ${{ env.MONITORED_FILES }}; do
-                  if [[ "${{ steps.changed_files.outputs.all }}" =~ $addon/$file ]]; then
-                    if [[ ! "${changed_addons[@]}" =~ $addon ]]; then
-                      changed_addons+=("\"${addon}\",");
-                    fi
-                  fi
-              done
-            fi
-          done
-
-          changed=$(echo ${changed_addons[@]} | rev | cut -c 2- | rev)
-
-          if [[ -n ${changed} ]]; then
-            echo "Changed add-ons: $changed";
-            echo "changed=true" >> $GITHUB_OUTPUT;
-            echo "addons=[$changed]" >> $GITHUB_OUTPUT;
-          else
-            echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})";
-          fi
   build:
     needs: init
-    runs-on: ubuntu-latest
-    if: needs.init.outputs.changed == 'true'
-    name: Build ${{ matrix.arch }} ${{ matrix.addon }} add-on
+    name: Build ${{ matrix.arch.name }} ${{ matrix.addon }}
+    runs-on: ${{ matrix.arch.runner }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     strategy:
+      fail-fast: false
       matrix:
-        addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
-        arch: ["aarch64", "amd64", "armhf", "armv7", "i386"]
-
+        addon: ${{ fromJSON(needs.init.outputs.addons) }}
+        arch:
+          - name: aarch64
+            runner: ubuntu-24.04-arm
+          - name: amd64
+            runner: ubuntu-24.04
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3.5.0
-        with:
-          submodules: "true"
+      - uses: actions/checkout@v6
 
-      - name: Get information
+      - name: Read add-on configuration
         id: info
         uses: home-assistant/actions/helpers/info@master
         with:
           path: "./${{ matrix.addon }}"
 
-      - name: Check if add-on should be built
-        id: check
-        run: |
-          if [[ "${{ steps.info.outputs.architectures }}" =~ ${{ matrix.arch }} ]]; then
-             echo "build_arch=true" >> $GITHUB_OUTPUT;
-             echo "image=$(echo ${{ steps.info.outputs.image }} | cut -d'/' -f3)" >> $GITHUB_OUTPUT;
-             if [[ -z "${{ github.head_ref }}" ]] && [[ "${{ github.event_name }}" == "push" ]]; then
-                 echo "BUILD_ARGS=" >> $GITHUB_ENV;
-             fi
-           else
-             echo "${{ matrix.arch }} is not a valid arch for ${{ matrix.addon }}, skipping build";
-             echo "build_arch=false" >> $GITHUB_OUTPUT;
-          fi
+      - name: Resolve image name
+        id: image
+        if: contains(fromJSON(steps.info.outputs.architectures), matrix.arch.name)
+        env:
+          IMAGE: ${{ fromJSON(steps.info.outputs.image) }}
+          ARCH: ${{ matrix.arch.name }}
+        run: echo "image=${IMAGE/\{arch\}/$ARCH}" >> "$GITHUB_OUTPUT"
 
-      - name: Login to GitHub Container Registry
-        if: env.BUILD_ARGS != '--test'
-        uses: docker/login-action@v2.1.0
+      - name: Build and optionally publish
+        if: contains(fromJSON(steps.info.outputs.architectures), matrix.arch.name)
+        uses: home-assistant/builder/actions/build-image@2026.09.0
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build ${{ matrix.addon }} add-on
-        if: steps.check.outputs.build_arch == 'true'
-        uses: home-assistant/builder@2022.11.0
-        with:
-          args: |
-            ${{ env.BUILD_ARGS }} \
-            --${{ matrix.arch }} \
-            --target /data/${{ matrix.addon }} \
-            --image "${{ steps.check.outputs.image }}" \
-            --docker-hub "ghcr.io/${{ github.repository_owner }}" \
-            --addon
+          arch: ${{ matrix.arch.name }}
+          context: "./${{ matrix.addon }}"
+          image: ${{ steps.image.outputs.image }}
+          image-tags: |
+            ${{ fromJSON(steps.info.outputs.version) }}
+            latest
+          version: ${{ fromJSON(steps.info.outputs.version) }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          cosign: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          cache-gha-scope: ${{ matrix.addon }}
+          labels: |
+            io.hass.type=addon
+            io.hass.name=${{ fromJSON(steps.info.outputs.name) }}
+            io.hass.description=${{ fromJSON(steps.info.outputs.description) }}
+            io.hass.url=${{ fromJSON(steps.info.outputs.url) }}

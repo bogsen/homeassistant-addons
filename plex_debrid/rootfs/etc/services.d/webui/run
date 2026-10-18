@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
-exec ttyd -p 8099 screen -x -R -S ttyd /configure.sh

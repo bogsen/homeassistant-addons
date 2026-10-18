@@ -1,3 +1,0 @@
-[submodule "plex_debrid/rootfs/plex_debrid"]
-	path = plex_debrid/rootfs/plex_debrid
-	url = https://github.com/itsToggle/plex_debrid
