@@ -12,10 +12,6 @@ ingress: true
 ingress_port: 0
 ingress_stream: true
 panel_icon: mdi:apple
-panel_admin: true
 backup: cold
 timeout: 30
-stage: stable
 image: "ghcr.io/bogsen/homeassistant-addon-atvloadly-{arch}"
-options: {}
-schema: {}
