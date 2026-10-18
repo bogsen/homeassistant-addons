@@ -1,0 +1,4 @@
+#!/command/with-contenv sh
+set -eu
+ulimit -c 0
+exec /command/s6-notifyoncheck -d -n 0 -w 200 -T 30000 -c "curl -fsS -o /dev/null http://127.0.0.1:5533/api/version" /usr/bin/atvloadly server -p 5533 -c /data/config.yaml

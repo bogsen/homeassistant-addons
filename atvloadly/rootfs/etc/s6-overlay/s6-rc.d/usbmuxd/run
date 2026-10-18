@@ -1,0 +1,4 @@
+#!/command/with-contenv sh
+set -eu
+ulimit -c 0
+exec /command/s6-notifyoncheck -d -n 0 -w 100 -T 15000 -c "test -S /run/usbmuxd" /usr/sbin/usbmuxd --nousb

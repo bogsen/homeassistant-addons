@@ -1,0 +1,21 @@
+name: atvloadly
+version: "0.7.1-1"
+slug: atvloadly
+description: "Sideload and refresh apps on Apple TV"
+url: "https://github.com/bogsen/homeassistant-addons/tree/main/atvloadly"
+arch:
+  - aarch64
+  - amd64
+init: false
+host_network: true
+ingress: true
+ingress_port: 0
+ingress_stream: true
+panel_icon: mdi:apple
+panel_admin: true
+backup: cold
+timeout: 30
+stage: stable
+image: "ghcr.io/bogsen/homeassistant-addon-atvloadly-{arch}"
+options: {}
+schema: {}

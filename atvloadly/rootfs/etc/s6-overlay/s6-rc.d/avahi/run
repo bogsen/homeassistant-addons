@@ -1,0 +1,3 @@
+#!/command/with-contenv sh
+set -eu
+exec /command/s6-notifyoncheck -d -n 0 -w 100 -T 15000 -c "test -f /run/avahi-daemon/pid" /usr/sbin/avahi-daemon --no-chroot

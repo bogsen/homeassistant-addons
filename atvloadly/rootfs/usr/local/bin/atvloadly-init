@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+umask 077
+
+# Host networking must not accidentally proxy another service on our backend port.
+if [ -n "$(ss -H -ltn 'sport = :5533')" ]; then
+    echo "ATVLoadly: port 5533 is already in use; stop the conflicting service." >&2
+    exit 1
+fi
+
+port=$(curl --fail --silent --show-error --max-time 15 \
+    -H "Authorization: Bearer ${SUPERVISOR_TOKEN:?Supervisor token is required}" \
+    http://supervisor/addons/self/info | jq -er '.data.ingress_port | select(type == "number" and . == floor and . >= 62000 and . <= 65500)')
+mkdir -p /run/dbus /run/avahi-daemon /run/atvloadly
+chmod 755 /run/dbus /run/avahi-daemon
+# Persistent machine identity is private to this add-on, never the host's D-Bus.
+dbus-uuidgen --ensure=/data/dbus-machine-id
+ln -sf /data/dbus-machine-id /etc/machine-id
+ln -sf /data/dbus-machine-id /var/lib/dbus/machine-id
+/usr/local/bin/atvloadly-bootstrap
+# The backend has no authentication. Refuse a manually changed public binding.
+grep -qx '  listen_addr: 127.0.0.1' /data/config.yaml || {
+    echo "ATVLoadly: /data/config.yaml must bind server.listen_addr to 127.0.0.1." >&2
+    exit 1
+}
+sed "s/@INGRESS_PORT@/$port/g" /etc/nginx/nginx.conf.template > /run/atvloadly/nginx.conf
+nginx -t -c /run/atvloadly/nginx.conf

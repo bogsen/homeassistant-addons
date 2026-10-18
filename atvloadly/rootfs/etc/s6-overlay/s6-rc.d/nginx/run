@@ -1,0 +1,3 @@
+#!/command/with-contenv sh
+set -eu
+exec /usr/sbin/nginx -c /run/atvloadly/nginx.conf -g "daemon off;"
