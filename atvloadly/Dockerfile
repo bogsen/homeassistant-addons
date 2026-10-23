@@ -1,6 +1,6 @@
 # The multi-platform index selects the upstream image for the build architecture.
 # Do not use BUILD_FROM: newer Supervisors override it with the HA base image.
-FROM ghcr.io/bitxeno/atvloadly:v0.7.1@sha256:1ade1ac88b9dbd2e687111437d196827729b1b525f9ec6d59e6ec9938aa04cbc
+FROM ghcr.io/bitxeno/atvloadly:v0.7.4@sha256:c613dcbfa1a6638e1c02a2820b1abbe1f65c8dd71ec9904ee53ba410886b63cf
 
 ARG S6_OVERLAY_VERSION=3.2.1.0
 RUN apt-get update \

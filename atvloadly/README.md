@@ -14,8 +14,13 @@ Assistant sidebar. Configure the application in its own interface.
 - Include the add-on in Home Assistant backups. Backups briefly stop it, so take
   them between installation or refresh jobs.
 
-See the [upstream documentation](https://github.com/bitxeno/atvloadly/tree/v0.7.1#readme)
+From v0.7.4, Apple ID signing requires a remote anisette server. You can select
+the server and reset anisette data for an individual account in the application's
+advanced settings. If installation or refresh fails because the remote server
+is unavailable, retry later or select another server.
+
+See the [upstream documentation](https://github.com/bitxeno/atvloadly/tree/v0.7.4#readme)
 for pairing, Apple login, installing apps, and refresh settings.
 
 Application and artwork by the [upstream contributors](https://github.com/bitxeno/atvloadly),
-licensed under [AGPL-3.0](https://github.com/bitxeno/atvloadly/blob/v0.7.1/LICENSE).
+licensed under [AGPL-3.0](https://github.com/bitxeno/atvloadly/blob/v0.7.4/LICENSE).
