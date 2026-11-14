@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["dockerfile", "custom.regex"],
+  "ignorePaths": ["isponsorblocktv-legacy/**"],
+  "timezone": "Europe/Bucharest",
+  "schedule": ["* 0-8 * * 1"],
+  "automerge": false,
+  "rebaseWhen": "behind-base-branch",
+  "separateMajorMinor": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^atvloadly\/Dockerfile$/"],
+      "matchStrings": ["ARG S6_OVERLAY_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "just-containers/s6-overlay",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": ["atvloadly/Dockerfile"],
+      "groupName": "atvloadly dependencies",
+      "bumpVersions": [
+        {
+          "filePatterns": ["atvloadly/config.yaml"],
+          "matchStrings": ["version: \"(?<version>[^\"]+)\""],
+          "bumpType": "prerelease"
+        }
+      ]
+    },
+    {
+      "matchFileNames": ["sidestore-vpn/Dockerfile"],
+      "groupName": "SideStore VPN dependencies",
+      "bumpVersions": [
+        {
+          "filePatterns": ["sidestore-vpn/config.yaml"],
+          "matchStrings": ["version: \"(?<version>[^\"]+)\""],
+          "bumpType": "patch"
+        }
+      ]
+    }
+  ]
+}
