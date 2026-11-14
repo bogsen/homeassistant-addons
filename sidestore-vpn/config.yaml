@@ -1,0 +1,23 @@
+name: SideStore VPN
+version: "0.1.0"
+slug: sidestore-vpn
+description: "Use SideStore through a dedicated Tailscale connection"
+url: "https://github.com/bogsen/homeassistant-addons/tree/main/sidestore-vpn"
+arch:
+  - aarch64
+  - amd64
+startup: services
+devices:
+  - /dev/net/tun
+privileged:
+  - NET_ADMIN
+ports:
+  41641/udp: 41642
+ports_description:
+  41641/udp: Tailscale peer connections
+options:
+  hostname: sidestore-vpn
+schema:
+  hostname: "match(^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$)"
+backup: cold
+image: "ghcr.io/bogsen/homeassistant-addon-sidestore-vpn-{arch}"

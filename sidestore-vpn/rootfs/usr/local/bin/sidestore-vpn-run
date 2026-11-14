@@ -1,0 +1,34 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+
+if [[ $(</proc/sys/net/ipv4/ip_forward) != 1 ]]; then
+    echo "IPv4 forwarding must be enabled in the add-on network namespace." >&2
+    exit 1
+fi
+
+TS_HOSTNAME=$(jq -er '.hostname | select(type == "string" and test("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"))' /data/options.json)
+export TS_HOSTNAME
+mkdir -p "$TS_STATE_DIR" "$(dirname "$TS_SOCKET")"
+
+pids=()
+cleanup() {
+    trap - EXIT TERM INT
+    if (( ${#pids[@]} )); then
+        kill -TERM "${pids[@]}" 2>/dev/null || true
+        wait "${pids[@]}" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+trap 'exit 0' TERM INT
+
+sidestore-vpn &
+pids+=("$!")
+/usr/local/bin/containerboot &
+pids+=("$!")
+
+# A failed reflector must stop the add-on rather than leave a broken VPN running.
+status=0
+wait -n "${pids[@]}" || status=$?
+echo "SideStore reflector or Tailscale exited unexpectedly (status $status)." >&2
+exit 1
