@@ -11,7 +11,7 @@ This repository contains the following add-ons
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
 
-Sideload and refresh Apple TV apps through Home Assistant ingress.
+Sideload and refresh apps on Apple TV.
 See the [add-on README](./atvloadly/README.md).
 
 ### [SideStore VPN](./sidestore-vpn)
@@ -19,7 +19,7 @@ See the [add-on README](./atvloadly/README.md).
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
 
-Use SideStore through a dedicated Tailscale connection.
+Use SideStore while connected to Tailscale, without switching to a separate VPN.
 See the [add-on README](./sidestore-vpn/README.md).
 
 ### [iSponsorBlockTV Legacy](./isponsorblocktv-legacy)
