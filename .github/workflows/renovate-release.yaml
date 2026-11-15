@@ -1,0 +1,90 @@
+name: Prepare Renovate release
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: Renovate pull request number
+        type: number
+        required: true
+
+concurrency:
+  group: renovate-release-${{ github.event.pull_request.number || inputs.pull_request_number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.user.login == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: write
+    steps:
+      - name: Read the trusted release script
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: automation
+          persist-credentials: false
+
+      - name: Resolve the Renovate branch
+        id: pr
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const number = context.payload.pull_request?.number ?? Number(context.payload.inputs.pull_request_number);
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
+            if (pr.state !== 'open' || pr.user.login !== 'renovate[bot]' ||
+                pr.head.repo.full_name !== context.payload.repository.full_name ||
+                !pr.head.ref.startsWith('renovate/') || pr.base.ref !== 'main') {
+              throw new Error('Expected an open, same-repository Renovate PR targeting main');
+            }
+            core.setOutput('head', pr.head.sha);
+            core.setOutput('base', pr.base.sha);
+            core.setOutput('branch', pr.head.ref);
+
+      - name: Read the proposed dependency changes
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.pr.outputs.head }}
+          path: candidate
+          fetch-depth: 0
+
+      # Run only the default branch's script; the PR checkout is input data.
+      - name: Prepare versions and changelogs
+        env:
+          BASE_SHA: ${{ steps.pr.outputs.base }}
+        run: python3 automation/.github/scripts/prepare-renovate-release.py --repository candidate --base "$BASE_SHA"
+
+      - name: Commit release files to the update PR
+        id: commit
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          repository: candidate
+          branch: ${{ steps.pr.outputs.branch }}
+          skip_checkout: true
+          skip_fetch: true
+          file_pattern: atvloadly/config.yaml atvloadly/CHANGELOG.md sidestore-vpn/config.yaml sidestore-vpn/CHANGELOG.md
+          commit_message: Prepare add-on versions and changelogs
+          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+
+      # Dispatch CI explicitly so the generated commit needs no manual approval.
+      - name: Check the completed PR
+        if: steps.commit.outputs.changes_detected == 'true'
+        uses: actions/github-script@v8
+        env:
+          PR_BRANCH: ${{ steps.pr.outputs.branch }}
+        with:
+          script: |
+            for (const workflow_id of ['builder.yaml', 'lint.yaml']) {
+              await github.rest.actions.createWorkflowDispatch({
+                ...context.repo, workflow_id, ref: process.env.PR_BRANCH
+              });
+            }

@@ -1,5 +1,5 @@
 name: SideStore VPN
-version: "0.1.0"
+version: "1.104.7-1"
 slug: sidestore-vpn
 description: "Use SideStore through a dedicated Tailscale connection"
 url: "https://github.com/bogsen/homeassistant-addons/tree/main/sidestore-vpn"

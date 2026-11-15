@@ -22,25 +22,12 @@
   "packageRules": [
     {
       "matchFileNames": ["atvloadly/Dockerfile"],
-      "groupName": "atvloadly dependencies",
-      "bumpVersions": [
-        {
-          "filePatterns": ["atvloadly/config.yaml"],
-          "matchStrings": ["version: \"(?<version>[^\"]+)\""],
-          "bumpType": "prerelease"
-        }
-      ]
+      "groupName": "atvloadly dependencies"
     },
     {
       "matchFileNames": ["sidestore-vpn/Dockerfile"],
-      "groupName": "SideStore VPN dependencies",
-      "bumpVersions": [
-        {
-          "filePatterns": ["sidestore-vpn/config.yaml"],
-          "matchStrings": ["version: \"(?<version>[^\"]+)\""],
-          "bumpType": "patch"
-        }
-      ]
+      "groupName": "SideStore VPN dependencies"
     }
-  ]
+  ],
+  "gitIgnoredAuthors": ["41898282+github-actions[bot]@users.noreply.github.com"]
 }

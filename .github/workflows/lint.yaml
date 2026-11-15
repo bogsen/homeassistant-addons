@@ -1,6 +1,7 @@
 name: Lint
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,6 +12,13 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  release-tests:
+    name: Test release preparation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
+
   find:
     name: Find add-ons
     runs-on: ubuntu-latest
