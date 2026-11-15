@@ -1,8 +1,8 @@
 # The multi-platform index selects the upstream image for the build architecture.
 # Do not use BUILD_FROM: newer Supervisors override it with the HA base image.
-FROM ghcr.io/bitxeno/atvloadly:v0.7.4@sha256:c613dcbfa1a6638e1c02a2820b1abbe1f65c8dd71ec9904ee53ba410886b63cf
+FROM ghcr.io/bitxeno/atvloadly:v0.8.3@sha256:cb7b71931fce97377b3b30c3abb3b639359c703f599c1331a9f8442d804e08af
 
-ARG S6_OVERLAY_VERSION=3.2.1.0
+ARG S6_OVERLAY_VERSION=3.2.3.2
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         nginx dbus avahi-daemon jq xz-utils iproute2 \
