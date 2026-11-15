@@ -1,5 +1,12 @@
 # Changelog
 
+<!-- renovate-release -->
+## 0.8.3-1
+
+- Update ATVLoadly from 0.7.4 to 0.8.3. [Release notes](https://github.com/bitxeno/atvloadly/releases/tag/v0.8.3) · [All changes](https://github.com/bitxeno/atvloadly/compare/v0.7.4...v0.8.3).
+- Update s6-overlay from 3.2.1.0 to 3.2.3.2. [Release notes](https://github.com/just-containers/s6-overlay/releases/tag/v3.2.3.2) · [All changes](https://github.com/just-containers/s6-overlay/compare/v3.2.1.0...v3.2.3.2).
+<!-- /renovate-release -->
+
 ## 0.7.4-1
 
 - Update the upstream ATVLoadly image from v0.7.1 to v0.7.4.
