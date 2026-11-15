@@ -8,15 +8,17 @@ spec = importlib.util.spec_from_file_location(
 )
 release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
-ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseTests(unittest.TestCase):
     def setUp(self):
         self.addon = "atvloadly"
-        self.docker = (ROOT / self.addon / "Dockerfile").read_text()
-        self.config = (ROOT / self.addon / "config.yaml").read_text()
-        self.history = (ROOT / self.addon / "CHANGELOG.md").read_text()
+        self.docker = (
+            f"FROM ghcr.io/bitxeno/atvloadly:v0.7.4@sha256:{'1' * 64}\n"
+            "ARG S6_OVERLAY_VERSION=3.2.1.0\n"
+        )
+        self.config = 'name: atvloadly\nversion: "0.7.4-1"\n'
+        self.history = "# Changelog\n\n## 0.7.4-1\n\n- Previous release.\n"
 
     def prepare(self, after, config=None, changelog=None):
         return release.prepare(
@@ -49,7 +51,7 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn('version: "0.8.3-1"', config)
 
     def test_digest_update_preserves_primary_version(self):
-        after = self.docker.replace("c613dcbfa1a6638e1c02a2820b1abbe1f65c8dd71ec9904ee53ba410886b63cf", "a" * 64)
+        after = self.docker.replace("1" * 64, "a" * 64)
         config, changelog = self.prepare(after)
         self.assertIn('version: "0.7.4-2"', config)
         self.assertIn("Update ATVLoadly image digest", changelog)
@@ -57,16 +59,19 @@ class ReleaseTests(unittest.TestCase):
 
     def test_sidestore_upstream_and_reflector(self):
         addon = "sidestore-vpn"
-        docker = (ROOT / addon / "Dockerfile").read_text()
-        config = (ROOT / addon / "config.yaml").read_text()
-        history = (ROOT / addon / "CHANGELOG.md").read_text()
+        docker = (
+            f"FROM ghcr.io/xddxdd/sidestore-vpn:latest@sha256:{'2' * 64} AS reflector\n"
+            f"FROM tailscale/tailscale:v1.104.7@sha256:{'3' * 64}\n"
+        )
+        config = 'name: SideStore VPN\nversion: "1.104.7-1"\n'
+        history = "# Changelog\n\n## 1.104.7-1\n\n- Previous release.\n"
         after = docker.replace("v1.104.7@", "v1.106.0@")
         result, notes = release.prepare(addon, docker, after, config, config, history)
         self.assertIn('version: "1.106.0-1"', result)
         self.assertIn("Update Tailscale from 1.104.7 to 1.106.0.", notes)
         self.assertIn("https://github.com/tailscale/tailscale/releases/tag/v1.106.0", notes)
         self.assertIn("https://github.com/tailscale/tailscale/compare/v1.104.7...v1.106.0", notes)
-        after = docker.replace("077de9af996cae9d63803715f2eb54596d6e48a37069f9b15656990459c4c9d4", "b" * 64)
+        after = docker.replace("2" * 64, "b" * 64)
         result, notes = release.prepare(addon, docker, after, config, config, history)
         self.assertIn('version: "1.104.7-2"', result)
         self.assertIn("Update SideStore reflector image digest", notes)
