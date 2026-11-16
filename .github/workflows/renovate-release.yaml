@@ -36,7 +36,7 @@ jobs:
 
       - name: Resolve the Renovate branch
         id: pr
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const number = context.payload.pull_request?.number ?? Number(context.payload.inputs.pull_request_number);
@@ -78,7 +78,7 @@ jobs:
       # Dispatch CI explicitly so the generated commit needs no manual approval.
       - name: Check the completed PR
         if: steps.commit.outputs.changes_detected == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           PR_BRANCH: ${{ steps.pr.outputs.branch }}
         with:
