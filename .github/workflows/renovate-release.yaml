@@ -28,7 +28,7 @@ jobs:
       actions: write
     steps:
       - name: Read the trusted release script
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.repository.default_branch }}
           path: automation
@@ -51,7 +51,7 @@ jobs:
             core.setOutput('branch', pr.head.ref);
 
       - name: Read the proposed dependency changes
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ steps.pr.outputs.head }}
           path: candidate
