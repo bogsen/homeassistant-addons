@@ -1,6 +1,12 @@
 # Changelog
 
 <!-- renovate-release -->
+## 0.8.7-1
+
+- Update ATVLoadly from 0.8.3 to 0.8.7. [Release notes](https://github.com/bitxeno/atvloadly/releases/tag/v0.8.7) · [All changes](https://github.com/bitxeno/atvloadly/compare/v0.8.3...v0.8.7).
+<!-- /renovate-release -->
+
+<!-- renovate-release -->
 ## 0.8.3-1
 
 - Update ATVLoadly from 0.7.4 to 0.8.3. [Release notes](https://github.com/bitxeno/atvloadly/releases/tag/v0.8.3) · [All changes](https://github.com/bitxeno/atvloadly/compare/v0.7.4...v0.8.3).
